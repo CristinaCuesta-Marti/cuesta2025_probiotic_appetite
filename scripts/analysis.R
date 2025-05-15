@@ -1161,18 +1161,19 @@ scfa_df <- clean_scfa_mbx_clr %>%
                    by = "full_id")
 
 
+# effect of bacteria X media -- SCFA
 scfa_anova_tukeys_results <- scfa_df %>% 
         filter(bacteria != "Control") %>% 
         nest(.by = "metabolite") %>% 
         mutate(
                 lm = purrr::map(.x = data,
-                               .f = ~lm(formula = clr_abundance ~ bacteria * time,
+                               .f = ~lm(formula = clr_abundance ~ bacteria * media,
                                         data = .x) %>%
                                        car::Anova(type = "II") %>%
                                        broom::tidy()),
                 
                 tukey = purrr::map(.x = data,
-                                   .f = ~aov(formula = clr_abundance ~ bacteria * time,
+                                   .f = ~aov(formula = clr_abundance ~ bacteria * media,
                                         data = .x) %>% 
                                            TukeyHSD() %>% 
                                            broom::tidy()
@@ -1185,7 +1186,7 @@ scfa_anova_tukeys_results %>%
         unnest(lm) %>% 
         mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
         xlsx::write.xlsx(x = .,
-                         file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_tiempo.xlsx",
+                         file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_media.xlsx",
                          sheetName = "scfa_anova", append = FALSE)
 
 scfa_anova_tukeys_results %>% 
@@ -1193,44 +1194,125 @@ scfa_anova_tukeys_results %>%
         unnest(tukey) %>% 
         #mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
         xlsx::write.xlsx(x = .,
-                         file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_tiempo.xlsx",
+                         file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_media.xlsx",
                          sheetName = "scfa_tukeys", append = TRUE)
 
-# semipolar MBX results
+
+
+
+# effect of bacteria X media -- semipolar metabolites
 semipolars_anova_tukeys_results <- metabolomics_df %>% 
-        filter(bacteria != "Control") %>% 
-        nest(.by = "metabolite") %>% 
-        mutate(
-                lm = purrr::map(.x = data,
-                                .f = ~lm(formula = clr_abundance ~ bacteria * time,
-                                         data = .x) %>%
-                                        car::Anova(type = "II") %>%
-                                        broom::tidy()),
-                
-                tukey = purrr::map(.x = data,
-                                   .f = ~aov(formula = clr_abundance ~ bacteria * time,
-                                             data = .x) %>% 
-                                           TukeyHSD() %>% 
-                                           broom::tidy()
-                )
-        ) %>% 
-        select(!data)
-        
+  filter(bacteria != "Control") %>% 
+  nest(.by = "metabolite") %>% 
+  mutate(
+    lm = purrr::map(.x = data,
+                    .f = ~lm(formula = clr_abundance ~ bacteria * media,
+                             data = .x) %>%
+                      car::Anova(type = "II") %>%
+                      broom::tidy()),
+    
+    tukey = purrr::map(.x = data,
+                       .f = ~aov(formula = clr_abundance ~ bacteria * media,
+                                 data = .x) %>% 
+                         TukeyHSD() %>% 
+                         broom::tidy()
+    )
+  ) %>% 
+  select(!data)
 
 semipolars_anova_tukeys_results %>% 
-        select(c(metabolite, lm)) %>% 
-        unnest(lm) %>% 
-        mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
-        #pull(metabolite) %>% unique() %>% sort()
-        xlsx::write.xlsx(x = .,
-                         file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_tiempo.xlsx",
-                         sheetName = "semipolar_anova", append = TRUE)
+  select(c(metabolite, lm)) %>% 
+  unnest(lm) %>% 
+  mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
+  #pull(metabolite) %>% unique() %>% sort()
+  xlsx::write.xlsx(x = .,
+                   file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_media.xlsx",
+                   sheetName = "semipolar_anova", append = TRUE)
 
 semipolars_anova_tukeys_results %>% 
-        select(c(metabolite, tukey)) %>% 
-        unnest(tukey) %>% 
-        #mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
-        xlsx::write.xlsx(x = .,
-                         file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_tiempo.xlsx",
-                         sheetName = "semipolar_tukeys", append = TRUE)
+  select(c(metabolite, tukey)) %>% 
+  unnest(tukey) %>% 
+  #mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
+  xlsx::write.xlsx(x = .,
+                   file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_media.xlsx",
+                   sheetName = "semipolar_tukeys", append = TRUE)
 
+
+
+
+
+
+# effect of bacteria X time -- SCFA
+scfa_anova_tukeys_results <- scfa_df %>% 
+  filter(bacteria != "Control") %>% 
+  nest(.by = "metabolite") %>% 
+  mutate(
+    lm = purrr::map(.x = data,
+                    .f = ~lm(formula = clr_abundance ~ bacteria * time,
+                             data = .x) %>%
+                      car::Anova(type = "II") %>%
+                      broom::tidy()),
+    
+    tukey = purrr::map(.x = data,
+                       .f = ~aov(formula = clr_abundance ~ bacteria * time,
+                                 data = .x) %>% 
+                         TukeyHSD() %>% 
+                         broom::tidy()
+    )
+  ) %>% 
+  select(!data)
+
+scfa_anova_tukeys_results %>% 
+  select(c(metabolite, lm)) %>% 
+  unnest(lm) %>% 
+  mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
+  xlsx::write.xlsx(x = .,
+                   file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_time.xlsx",
+                   sheetName = "scfa_anova", append = FALSE)
+
+scfa_anova_tukeys_results %>% 
+  select(c(metabolite, tukey)) %>% 
+  unnest(tukey) %>% 
+  #mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
+  xlsx::write.xlsx(x = .,
+                   file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_time.xlsx",
+                   sheetName = "scfa_tukeys", append = TRUE)
+
+
+
+# effect of bacteria X time -- semipolar metabolites
+semipolars_anova_tukeys_results <- metabolomics_df %>% 
+  filter(bacteria != "Control") %>% 
+  nest(.by = "metabolite") %>% 
+  mutate(
+    lm = purrr::map(.x = data,
+                    .f = ~lm(formula = clr_abundance ~ bacteria * time,
+                             data = .x) %>%
+                      car::Anova(type = "II") %>%
+                      broom::tidy()),
+    
+    tukey = purrr::map(.x = data,
+                       .f = ~aov(formula = clr_abundance ~ bacteria * time,
+                                 data = .x) %>% 
+                         TukeyHSD() %>% 
+                         broom::tidy()
+    )
+  ) %>% 
+  select(!data)
+
+semipolars_anova_tukeys_results %>% 
+  select(c(metabolite, lm)) %>% 
+  unnest(lm) %>% 
+  mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
+  #pull(metabolite) %>% unique() %>% sort()
+  xlsx::write.xlsx(x = .,
+                   file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_time.xlsx",
+                   sheetName = "semipolar_anova", append = TRUE)
+
+semipolars_anova_tukeys_results %>% 
+  select(c(metabolite, tukey)) %>% 
+  unnest(tukey) %>% 
+  #mutate(p.adj = p.adjust(p = p.value, method = "BH")) %>% 
+  xlsx::write.xlsx(x = .,
+                   file = "cuesta2025_probiotic_appetite/outputs/mbx_stats_bacteria_X_time.xlsx",
+                   sheetName = "semipolar_tukeys", append = TRUE)
